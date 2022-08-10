@@ -49,6 +49,8 @@ In this exercise, we will use the **English database** but may consider three ot
 
 ### Getting and cleaning the data
 
+#### Load the data
+
 Load the English dataset:
 
 ```{r}
@@ -64,6 +66,45 @@ blogs <-iconv(blogs,"latin1","ASCII",sub="")
 news <-iconv(news,"latin1","ASCII",sub="")
 twitter <-iconv(twitter,"latin1","ASCII",sub="")
 ```
+
+#### Word counts and line counts
+
+Word counts and line counts for each data set:
+
+-   For *blogs* data set:
+
+```{r}
+library(stringr)
+
+blogs.lines = length(blogs)
+blogs.words = sum(str_count(string = blogs, pattern = '\\w+'))
+```
+
+-   For *news* data set:
+
+```{r}
+news.lines = length(news)
+news.words = sum(str_count(string = news, pattern = '\\w+'))
+```
+
+-   For *twitter* data set:
+
+```{r}
+twitter.lines = length(twitter)
+twitter.words = sum(str_count(string = twitter, pattern = '\\w+'))
+```
+
+Construct a data frame of counting:
+
+```{r}
+counting <- data.frame(LineCounts = c(blogs.lines, news.lines, twitter.lines),
+                       WordCounts = c(blogs.words, news.words, twitter.words))
+rownames(counting) <- c("blogs", "news", "twitter")
+
+head(counting)
+```
+
+#### Get sub-sample data
 
 To build a model, we don't need to use all the data at a time. We relatively use few randomly selected rows or chunks to represent for the entire data set. Since the data set is quite large, we only use a sub-sample data set of 1% of the whole data set.
 
