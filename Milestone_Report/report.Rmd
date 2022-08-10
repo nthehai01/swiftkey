@@ -153,10 +153,11 @@ corpus <- VCorpus(VectorSource(data)) %>%
 
 #### Understanding frequencies of words and word pairs using N-gram model
 
-First, we define the n-gram tokenizer for bi-gram and tri-gram:
+First, we define the n-gram tokenizer for uni-gram, bi-gram and tri-gram:
 
 ```{r}
 library(RWeka)
+uni.gram.tok <- function(x) NGramTokenizer(x, Weka_control(min=1, max=1))
 bi.gram.tok <- function(x) NGramTokenizer(x, Weka_control(min=2, max=2))
 tri.gram.tok <- function(x) NGramTokenizer(x, Weka_control(min=3, max=3))
 ```
@@ -164,6 +165,7 @@ tri.gram.tok <- function(x) NGramTokenizer(x, Weka_control(min=3, max=3))
 Next, we'll build the matrices of n-gram from our corpus:
 
 ```{r}
+uni.gram.matrix <- TermDocumentMatrix(corpus, control=list(tokenize=uni.gram.tok))
 bi.gram.matrix <- TermDocumentMatrix(corpus, control=list(tokenize=bi.gram.tok))
 tri.gram.matrix <- TermDocumentMatrix(corpus, control=list(tokenize=tri.gram.tok))
 ```
@@ -171,6 +173,23 @@ tri.gram.matrix <- TermDocumentMatrix(corpus, control=list(tokenize=tri.gram.tok
 The n-gram matrices above are actually the matrices with the rows indicating the words or pairs of words, the columns representing the indices of lines in our sub-sample data. The values of each matrix are the number of times a word or a pair of words appear in a corresponding line.
 
 Finally, we'll build the matrices that represent the frequencies of words and word pairs and sort the value of occurrence descending. Since there are many words and word pairs to be processed (which take a long time), we only keep the words or word pairs that meet our threshold of frequencies (i.e. if the words or word pairs that less occur, we will omit them):
+
+-   Uni-gram matrix with the threshold of 1000 times:
+
+```{r}
+uni.gram.threshold <- findFreqTerms(uni.gram.matrix, lowfreq=1000)
+
+# sum of frequencies across the entire lines in the sub-sample
+uni.gram <- rowSums(as.matrix(uni.gram.matrix[uni.gram.threshold,]))
+
+# create data frame
+uni.gram <- data.frame(Word=names(uni.gram), frequency=uni.gram)
+
+# sort by the frequency
+uni.gram < uni.gram[order(-uni.gram$frequency),]
+
+head(uni.gram)
+```
 
 -   Bi-gram matrix with the threshold of 80 times:
 
@@ -210,17 +229,25 @@ head(tri.gram)
 
 #### **Exploratory analysis**
 
--   Plot the word cloud of bi-gram word pairs:
+-   Plot the word cloud of uni-gram word pairs:
 
 ```{r}
 library(wordcloud)
-wordcloud(words = bi.gram$Word, 
-          freq = bi.gram$frequency, 
-          min.freq=4, 
-          max.words = 200, 
+wordcloud(words = uni.gram$Word, 
+          freq = uni.gram$frequency, 
+          min.freq = 10, 
           random.order = FALSE, 
           scale = c(3, 0.5), 
           colors = rainbow(3))
+```
+
+-   Plot the frequency distribution of uni-gram word pairs:
+
+```{r}
+library(ggplot2)
+p <- ggplot(uni.gram, aes(x=frequency)) + 
+  geom_histogram()
+p
 ```
 
 -   Plot the frequency distribution of bi-gram word pairs:
@@ -238,4 +265,14 @@ p
 p <- ggplot(tri.gram, aes(x=frequency)) + 
   geom_histogram()
 p
+```
+
+### Save the n-gram matrices
+
+Save the uni-gram, bi-gram and tri-gram matrices:
+
+```{r}
+write.csv(uni.gram, file="../Data/n-gram/uni-gram", row.names=FALSE)
+write.csv(bi.gram, file="../Data/n-gram/bi-gram", row.names=FALSE)
+write.csv(tri.gram, file="../Data/n-gram/tri-gram", row.names=FALSE)
 ```
