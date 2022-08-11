@@ -185,10 +185,7 @@ uni.gram <- rowSums(as.matrix(uni.gram.matrix[uni.gram.threshold,]))
 # create data frame
 uni.gram <- data.frame(Word=names(uni.gram), frequency=uni.gram)
 
-# sort by the frequency
-uni.gram < uni.gram[order(-uni.gram$frequency),]
-
-#head(uni.gram)
+head(uni.gram)
 ```
 
 -   Bi-gram matrix with the threshold of 2 times:
@@ -202,9 +199,6 @@ bi.gram <- rowSums(as.matrix(bi.gram.matrix[bi.gram.threshold,]))
 
 # create data frame
 bi.gram <- data.frame(Word=names(bi.gram), frequency=bi.gram)
-
-# sort by the frequency
-bi.gram < bi.gram[order(-bi.gram$frequency),]
 
 head(bi.gram)
 ```
@@ -220,9 +214,6 @@ tri.gram <- rowSums(as.matrix(tri.gram.matrix[tri.gram.threshold,]))
 
 # create data frame
 tri.gram <- data.frame(Word=names(tri.gram), frequency=tri.gram)
-
-# sort by the frequency
-tri.gram < tri.gram[order(-tri.gram$frequency),]
 
 head(tri.gram)
 ```
