@@ -1,0 +1,34 @@
+---
+title: "SwiftKey Capstone Project"
+author: "nthehai01"
+date: '2022-08-11'
+output: 
+  ioslides_presentation:
+    smaller: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+## Introduction
+
+In this capstone project, I am going to create clone version of the famous SwiftKey app on the phones which will predict the next word given a piece of text.
+
+I used the n-gram method to tackle this problem. By doing so, I will predict the probability of the next words given the sentence input and then return the word that has the most probable within the set of predicted words.
+
+## App Instruction
+
+-   Like typing on the phone, while you are insert a piece of text on the left-hand side, the app will automatically predict the next most probable word and display it to the right of your screen.
+
+-   Sometimes, the model can not predict the next word due to the word you are typing is pretty strange for the model. The app will throw a special token *\<unknown\>* to say that it can not deal with the input sentence.
+
+-   The link to this app is provided in the next slide.
+
+## Project Links
+
+-   Shiny app: [https://ztp34z-th0h0i-nguy0n.shinyapps.io/swiftkey](https://ztp34z-th0h0i-nguy0n.shinyapps.io/swiftkey/).
+
+-   Source code: <https://github.com/nthehai01/swiftkey>.
+
+## This is the end of the slides
