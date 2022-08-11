@@ -45,7 +45,7 @@ In this exercise, we will use the **English database** but may consider three ot
 
 ## Milestone Report
 
-**Note**: This report mainly focuses on task 2 (Exploratory analysis) and task 3 (Statistical modeling) and a little bit of task 1 (Data acquisition and cleaning) of the process.
+**Note**: This report mainly focuses on task 2 (Exploratory analysis) and a little bit of task 1 (Data acquisition and cleaning) of the process.
 
 ### Getting and cleaning the data
 
@@ -106,13 +106,16 @@ head(counting)
 
 #### Get sub-sample data
 
-To build a model, we don't need to use all the data at a time. We relatively use few randomly selected rows or chunks to represent for the entire data set. Since the data set is quite large, we only use a sub-sample data set of 10% of the whole data set.
+To build a model, we don't need to use all the data at a time. We relatively use few randomly selected rows or chunks to represent for the entire data set. Since the data set is quite large, we only use a sub-sample data set of 1% of the whole data set.
+
+Another reason why we don't need to use the entire data set is that the frequencies of some common words (e.g. the, and,...) will be higher if we use more data. It will dominate the n-gram vocabulary leading to a fall in the chance that the "rarer" words to be included in the vocabulary. While our goal is to make the vocabulary as variant as possible.
 
 ```{r}
 set.seed(42)
-data <- c(sample(blogs, length(blogs)*0.1),
-          sample(news, length(news)*0.1),
-          sample(twitter, length(twitter)*0.1))
+SAMPLE.RATE = 0.01
+data <- c(sample(blogs, length(blogs) * SAMPLE.RATE),
+          sample(news, length(news) * SAMPLE.RATE),
+          sample(twitter, length(twitter) * SAMPLE.RATE))
 ```
 
 From now, we'll be using the sub-sample data set `data` instead of the large data set.
@@ -131,10 +134,6 @@ Before performing EDA or building models, we first should do some data preproces
 
 -   Lowercase
 
--   Remove stopwords
-
--   Stemming
-
 ```{r}
 library(tm) # Text mining
 library(NLP)
@@ -144,8 +143,7 @@ corpus <- VCorpus(VectorSource(data)) %>%
   tm_map(removeNumbers) %>%
   tm_map(removePunctuation) %>%
   tm_map(stripWhitespace) %>%
-  tm_map(content_transformer(tolower)) %>%
-  tm_map(stemDocument)
+  tm_map(content_transformer(tolower))
 ```
 
 ### Exploratory Data Analysis
@@ -173,13 +171,16 @@ The n-gram matrices above are actually the matrices with the rows indicating the
 
 Finally, we'll build the matrices that represent the frequencies of words and word pairs and sort the value of occurrence descending. Since there are many words and word pairs to be processed (which take a long time), we only keep the words or word pairs that meet our threshold of frequencies (i.e. if the words or word pairs that less occur, we will omit them):
 
--   Uni-gram matrix with the threshold of 450 times:
+-   Uni-gram matrix with the threshold of 100 times:
 
 ```{r}
-uni.gram.threshold <- findFreqTerms(uni.gram.matrix, lowfreq=450)
+uni.gram.threshold <- findFreqTerms(uni.gram.matrix, lowfreq=100)
 
 # sum of frequencies across the entire lines in the sub-sample
 uni.gram <- rowSums(as.matrix(uni.gram.matrix[uni.gram.threshold,]))
+
+# sort the frequency
+uni.gram <- sort(uni.gram, decreasing = TRUE)
 
 # create data frame
 uni.gram <- data.frame(Word=names(uni.gram), frequency=uni.gram)
@@ -187,14 +188,17 @@ uni.gram <- data.frame(Word=names(uni.gram), frequency=uni.gram)
 head(uni.gram)
 ```
 
--   Bi-gram matrix with the threshold of 400 times:
+-   Bi-gram matrix with the threshold of 10 times:
 
 ```{r}
 # only keep the words that more occur
-bi.gram.threshold <- findFreqTerms(bi.gram.matrix, lowfreq=400)
+bi.gram.threshold <- findFreqTerms(bi.gram.matrix, lowfreq=10)
 
 # sum of frequencies across the entire lines in the sub-sample
 bi.gram <- rowSums(as.matrix(bi.gram.matrix[bi.gram.threshold,]))
+
+# sort the frequency
+bi.gram <- sort(bi.gram, decreasing = TRUE)
 
 # create data frame
 bi.gram <- data.frame(Word=names(bi.gram), frequency=bi.gram)
@@ -202,14 +206,17 @@ bi.gram <- data.frame(Word=names(bi.gram), frequency=bi.gram)
 head(bi.gram)
 ```
 
--   Tri-gram matrix with the threshold of 150 times:
+-   Tri-gram matrix with the threshold of 10 times:
 
 ```{r}
 # only keep the words that more occur
-tri.gram.threshold <- findFreqTerms(tri.gram.matrix, lowfreq=150)
+tri.gram.threshold <- findFreqTerms(tri.gram.matrix, lowfreq=10)
 
 # sum of frequencies across the entire lines in the sub-sample
 tri.gram <- rowSums(as.matrix(tri.gram.matrix[tri.gram.threshold,]))
+
+# sort the frequency
+tri.gram <- sort(tri.gram, decreasing = TRUE)
 
 # create data frame
 tri.gram <- data.frame(Word=names(tri.gram), frequency=tri.gram)
@@ -225,7 +232,7 @@ head(tri.gram)
 library(wordcloud)
 wordcloud(words = uni.gram$Word, 
           freq = uni.gram$frequency, 
-          min.freq = 1000, 
+          min.freq = 500, 
           random.order = FALSE, 
           scale = c(3, 0.5), 
           colors = rainbow(3))
