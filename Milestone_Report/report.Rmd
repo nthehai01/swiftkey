@@ -106,13 +106,13 @@ head(counting)
 
 #### Get sub-sample data
 
-To build a model, we don't need to use all the data at a time. We relatively use few randomly selected rows or chunks to represent for the entire data set. Since the data set is quite large, we only use a sub-sample data set of 1% of the whole data set.
+To build a model, we don't need to use all the data at a time. We relatively use few randomly selected rows or chunks to represent for the entire data set. Since the data set is quite large, we only use a sub-sample data set of 10% of the whole data set.
 
 ```{r}
 set.seed(42)
-data <- c(sample(blogs, length(blogs)*0.01),
-          sample(news, length(news)*0.01),
-          sample(twitter, length(twitter)*0.01))
+data <- c(sample(blogs, length(blogs)*0.1),
+          sample(news, length(news)*0.1),
+          sample(twitter, length(twitter)*0.1))
 ```
 
 From now, we'll be using the sub-sample data set `data` instead of the large data set.
@@ -145,7 +145,6 @@ corpus <- VCorpus(VectorSource(data)) %>%
   tm_map(removePunctuation) %>%
   tm_map(stripWhitespace) %>%
   tm_map(content_transformer(tolower)) %>%
-  tm_map(removeWords, stopwords("english")) %>%
   tm_map(stemDocument)
 ```
 
@@ -174,10 +173,10 @@ The n-gram matrices above are actually the matrices with the rows indicating the
 
 Finally, we'll build the matrices that represent the frequencies of words and word pairs and sort the value of occurrence descending. Since there are many words and word pairs to be processed (which take a long time), we only keep the words or word pairs that meet our threshold of frequencies (i.e. if the words or word pairs that less occur, we will omit them):
 
--   Uni-gram matrix with the threshold of 10 times:
+-   Uni-gram matrix with the threshold of 450 times:
 
 ```{r}
-uni.gram.threshold <- findFreqTerms(uni.gram.matrix, lowfreq=10)
+uni.gram.threshold <- findFreqTerms(uni.gram.matrix, lowfreq=450)
 
 # sum of frequencies across the entire lines in the sub-sample
 uni.gram <- rowSums(as.matrix(uni.gram.matrix[uni.gram.threshold,]))
@@ -188,11 +187,11 @@ uni.gram <- data.frame(Word=names(uni.gram), frequency=uni.gram)
 head(uni.gram)
 ```
 
--   Bi-gram matrix with the threshold of 2 times:
+-   Bi-gram matrix with the threshold of 400 times:
 
 ```{r}
 # only keep the words that more occur
-bi.gram.threshold <- findFreqTerms(bi.gram.matrix, lowfreq=3)
+bi.gram.threshold <- findFreqTerms(bi.gram.matrix, lowfreq=400)
 
 # sum of frequencies across the entire lines in the sub-sample
 bi.gram <- rowSums(as.matrix(bi.gram.matrix[bi.gram.threshold,]))
@@ -203,11 +202,11 @@ bi.gram <- data.frame(Word=names(bi.gram), frequency=bi.gram)
 head(bi.gram)
 ```
 
--   Tri-gram matrix with the threshold of 2 times:
+-   Tri-gram matrix with the threshold of 150 times:
 
 ```{r}
 # only keep the words that more occur
-tri.gram.threshold <- findFreqTerms(tri.gram.matrix, lowfreq=2)
+tri.gram.threshold <- findFreqTerms(tri.gram.matrix, lowfreq=150)
 
 # sum of frequencies across the entire lines in the sub-sample
 tri.gram <- rowSums(as.matrix(tri.gram.matrix[tri.gram.threshold,]))
@@ -220,13 +219,13 @@ head(tri.gram)
 
 #### **Exploratory analysis**
 
--   Plot the word cloud of uni-gram word pairs:
+-   Plot the word cloud of uni-gram word pairs with the min frequency of 1000 times:
 
 ```{r}
 library(wordcloud)
 wordcloud(words = uni.gram$Word, 
           freq = uni.gram$frequency, 
-          min.freq = 10, 
+          min.freq = 1000, 
           random.order = FALSE, 
           scale = c(3, 0.5), 
           colors = rainbow(3))
