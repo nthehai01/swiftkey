@@ -174,10 +174,10 @@ The n-gram matrices above are actually the matrices with the rows indicating the
 
 Finally, we'll build the matrices that represent the frequencies of words and word pairs and sort the value of occurrence descending. Since there are many words and word pairs to be processed (which take a long time), we only keep the words or word pairs that meet our threshold of frequencies (i.e. if the words or word pairs that less occur, we will omit them):
 
--   Uni-gram matrix with the threshold of 1000 times:
+-   Uni-gram matrix with the threshold of 10 times:
 
 ```{r}
-uni.gram.threshold <- findFreqTerms(uni.gram.matrix, lowfreq=1000)
+uni.gram.threshold <- findFreqTerms(uni.gram.matrix, lowfreq=10)
 
 # sum of frequencies across the entire lines in the sub-sample
 uni.gram <- rowSums(as.matrix(uni.gram.matrix[uni.gram.threshold,]))
@@ -188,14 +188,14 @@ uni.gram <- data.frame(Word=names(uni.gram), frequency=uni.gram)
 # sort by the frequency
 uni.gram < uni.gram[order(-uni.gram$frequency),]
 
-head(uni.gram)
+#head(uni.gram)
 ```
 
--   Bi-gram matrix with the threshold of 80 times:
+-   Bi-gram matrix with the threshold of 2 times:
 
 ```{r}
 # only keep the words that more occur
-bi.gram.threshold <- findFreqTerms(bi.gram.matrix, lowfreq=80)
+bi.gram.threshold <- findFreqTerms(bi.gram.matrix, lowfreq=3)
 
 # sum of frequencies across the entire lines in the sub-sample
 bi.gram <- rowSums(as.matrix(bi.gram.matrix[bi.gram.threshold,]))
@@ -209,11 +209,11 @@ bi.gram < bi.gram[order(-bi.gram$frequency),]
 head(bi.gram)
 ```
 
--   Tri-gram matrix with the threshold of 10 times:
+-   Tri-gram matrix with the threshold of 2 times:
 
 ```{r}
 # only keep the words that more occur
-tri.gram.threshold <- findFreqTerms(tri.gram.matrix, lowfreq=10)
+tri.gram.threshold <- findFreqTerms(tri.gram.matrix, lowfreq=2)
 
 # sum of frequencies across the entire lines in the sub-sample
 tri.gram <- rowSums(as.matrix(tri.gram.matrix[tri.gram.threshold,]))
@@ -272,7 +272,7 @@ p
 Save the uni-gram, bi-gram and tri-gram matrices:
 
 ```{r}
-write.csv(uni.gram, file="../Data/n-gram/uni-gram", row.names=FALSE)
-write.csv(bi.gram, file="../Data/n-gram/bi-gram", row.names=FALSE)
-write.csv(tri.gram, file="../Data/n-gram/tri-gram", row.names=FALSE)
+write.csv(uni.gram, file="../Data/n-gram/uni-gram.csv", row.names=FALSE)
+write.csv(bi.gram, file="../Data/n-gram/bi-gram.csv", row.names=FALSE)
+write.csv(tri.gram, file="../Data/n-gram/tri-gram.csv", row.names=FALSE)
 ```
